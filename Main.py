@@ -3,8 +3,15 @@ from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from google.genai import types as genai_types
 from google.cloud import texttospeech
+from dotenv import load_dotenv
 from google import genai
 import base64
+
+# Load env file
+print("Loading env...")
+load_dotenv()
+
+gemini_key = os.environ.get("GEMINI_KEY")
 
 # APIs
 app = FastAPI()
@@ -19,7 +26,7 @@ app.add_middleware(
 )
 
 print("Starting Gemini")
-client = genai.Client(api_key="")
+client = genai.Client(api_key=gemini_key)
 print("Starting TTS Client")
 ttsClient = texttospeech.TextToSpeechClient()
 
