@@ -1,5 +1,6 @@
 from Structs import NPCResponse, BuildingCommand, PromptRequest
 from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from google.genai import types as genai_types
 from google.cloud import texttospeech
 from google import genai
@@ -7,7 +8,19 @@ import base64
 
 # APIs
 app = FastAPI()
+
+# FORCE FASTAPI TO ACCEPT WEB REQUESTS FROM ANY EXTERNAL APPLICATION Runtime
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows your Quest app origin to pass safely
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows POST, GET, OPTIONS, etc.
+    allow_headers=["*"],  # Allows Content-Type, User-Agent, etc.
+)
+
+print("Starting Gemini")
 client = genai.Client(api_key="")
+print("Starting TTS Client")
 ttsClient = texttospeech.TextToSpeechClient()
 
 # Lunar AI
