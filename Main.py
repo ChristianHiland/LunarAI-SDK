@@ -84,6 +84,7 @@ async def synthesize_speech(request: PromptRequest):
 # Get Prompt Along with User Recording, with a arg of voice name, and get a response -> TTS Audio File.
 @app.post("/generate-text-speech")
 async def generateSpeechAndText(prompt: str = Form(...), tts_voice: str = Form("en-US-Chirp3-HD-Fenrir"), audio_file: UploadFile = File(...)):
+    """This takes in a prompt, a TTS voice, and a audio file that contains the person (Player/User) speaking to the AI"""
     # Generate Response From Gemini
     file_bytes = await audio_file.read()
 
@@ -97,17 +98,11 @@ async def generateSpeechAndText(prompt: str = Form(...), tts_voice: str = Form("
 
     input_text = texttospeech.SynthesisInput(text=gemini_response.parsed)
 
-    voice = texttospeech.VoiceSelectionParams(
-        language_code="en-US", name=tts_voice
-    )
+    voice = texttospeech.VoiceSelectionParams(language_code="en-US", name=tts_voice)
 
-    audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
-    )
+    audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
 
-    response = ttsClient.synthesize_speech(
-        request={"input": input_text, "voice": voice, "audio_config": audio_config}
-    )
+    response = ttsClient.synthesize_speech(request={"input": input_text, "voice": voice, "audio_config": audio_config})
     encoded_audio = base64.b64encode(response.audio_content).decode('utf-8')
 
     return {"audio_data": encoded_audio}
@@ -173,18 +168,12 @@ async def testListVoices():
 #
 
 def TTS(text: str, voice: str = "en-US-Chirp3-HD-Fenrir") -> str:
+    # Settings
     input_text = texttospeech.SynthesisInput(text=text)
+    voice = texttospeech.VoiceSelectionParams(language_code="en-US", name=voice)
+    audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
 
-    voice = texttospeech.VoiceSelectionParams(
-        language_code="en-US", name=voice
-    )
-
-    audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
-    )
-
-    response = ttsClient.synthesize_speech(
-        request={"input": input_text, "voice": voice, "audio_config": audio_config}
-    )
+    # Making TTS
+    response = ttsClient.synthesize_speech(request={"input": input_text, "voice": voice, "audio_config": audio_config})
     encoded_audio = base64.b64encode(response.audio_content).decode('utf-8')
     return encoded_audio
